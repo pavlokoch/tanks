@@ -21,7 +21,8 @@ class battle_field(Frame):
 		self.battle = 0
 		# allow units to move
 		self.movable_units = 1
-		# first turn if server
+		# save current coords for hit/kill message
+		self.cur_coord = (0,0)	
 		
 		self.units_label = LabelFrame(self.top, text="Units", padx=5, pady=5, background="white")
 		self.units_label.pack(fill = Y, side=RIGHT ,padx=10, pady=10)
@@ -166,6 +167,9 @@ class battle_field(Frame):
 						break
 			# if unit found
 			if unit:
+				# save coord for hit/fill message
+				self.cur_coord = (event.x,event.y)
+				# start fure animation
 				unit.start_fire_coord = (event.x,event.y)
 				t1 = Thread(target=unit.fire())
 				t1.start()
@@ -184,6 +188,12 @@ class battle_field(Frame):
 	def next_turn(self):
 		self.my_turn = False
 		self.player_label["background"] = "red"
+
+	def hit(self,message):
+		msg = self.player_canvas.create_text(self.cur_coord[0],self.cur_coord[1],fill="red",font="Times 40 bold",
+                        text=message)
+		time.sleep(1)
+		self.player_canvas.delete(msg)
 
 
 

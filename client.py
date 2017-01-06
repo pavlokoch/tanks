@@ -1,15 +1,16 @@
 import socket
 import sys
+import time
 
 def connect(address):
 	# Create a TCP/IP socket
 	sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-	
-	# Connect the socket to the port on the server given by the caller
-	server_address = (address, 10000)
-	print >>sys.stderr, 'connecting to %s port %s' % server_address
-	sock.connect(server_address)
-	return sock
+	# scan local network
+	result = sock.connect_ex((address,10000))	
+	if result == 0:
+		return sock
+	else:
+		return 0
 
 def send_message(sock,message):	
 #	try:

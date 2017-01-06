@@ -78,6 +78,8 @@ class incoming_fire(object):
 			if coords[0] <= 0:
 				self.master.player_canvas.delete(self.fire_image_on_canvas)
 				border_reached = 1
+				# miss
+				self.master.master.send_message("Miss")
 			#print >>sys.stderr, coords
 	        	self.fire_animation_image_number += 1
 			time.sleep(0.05)

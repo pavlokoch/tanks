@@ -9,6 +9,8 @@ import time
 import sys
 import battle_field
 import incoming_fire
+import socket
+import tkSimpleDialog
 
 class Main_menu(Frame):
 	
@@ -48,6 +50,16 @@ class Main_menu(Frame):
 		self.button_exit.config( width = 10 )
 		self.button_exit["command"] = self.exit
 	
+		# get to know my ip
+		s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+		s.connect(('gmail.com',80))
+		self.my_ip = (s.getsockname()[0])
+		s.close()
+		""" display ip to connect to"""
+		self.label = Label(self, text = self.my_ip)
+		self.label.pack(pady = 5)
+
+
 	def exit(self):
 		# if still connected then disconnect first
 		if self.sock:
@@ -56,7 +68,7 @@ class Main_menu(Frame):
 		sys.exit(0)
 
 	def create_server(self):
-		self.sock = server.create_server("127.0.0.1")
+		self.sock = server.create_server(self.my_ip)
 		self.connection = server.wait_connection(self.sock)
 		if self.connection:
 			self.Im_server = True
@@ -74,7 +86,8 @@ class Main_menu(Frame):
 		self.connection = 0
 
 	def connect(self):
-		self.sock = client.connect("127.0.0.1")
+		ip = tkSimpleDialog.askstring("Connect to", "enter IP")
+		self.sock = client.connect(ip)
 		if self.sock > 0:
 			self.Im_server = False
 			self.button_connect["text"] = "Disconnect"
@@ -83,6 +96,9 @@ class Main_menu(Frame):
 			thread = Thread(target = self.start_the_game)
 			thread.start()
 			#self.button_create_server.grid_forget()
+		else:
+			print "No local server"
+			self.exit()
 
 	def send_message(self,message):
 		if not self.Im_server and self.sock > 0:		
@@ -125,9 +141,15 @@ class Main_menu(Frame):
 					client.disconnect(self.sock)
 				# reinit 
 				self.re_init()
+				self.data = 0
 				print >>sys.stderr, 'done'
 				break
 			
+			if self.data == 'Hit!' or self.data == 'Kill!' or self.data == 'Miss':
+				self.field.hit(self.data)
+				self.data = 0
+				continue
+
 			if self.data > 0:
 				print >>sys.stderr, 'received "%s"' % self.data
 				x = 0
@@ -142,12 +164,8 @@ class Main_menu(Frame):
 					incoming_fire.incoming_fire(self.field,(x,y),unit_type)				
 			time.sleep(0.5)
 
-def onKeyPress(event):
-	print >>sys.stderr,'You pressed %s\n' % (event.char, )
-
-
 root = Tk()
 root.title("Battle tanks")
-root.geometry("200x200")
+root.geometry("200x220")
 app = Main_menu(root)
 root.mainloop()

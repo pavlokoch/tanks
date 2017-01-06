@@ -110,7 +110,7 @@ class unit(object):
 			time.sleep(0.05)
 	
 	def update_health(self):
-		print >>sys.stderr, self.health/self.max_health
+		# print >>sys.stderr, self.health/self.max_health
 		if self.health <= 0:
 			self.master.player_canvas.delete(self.unit_image_on_canvas)
 			# delete unit from list
@@ -120,6 +120,8 @@ class unit(object):
 					del self.master.units[j]
 					break
 				j += 1
+			# send message that was killed
+			self.master.master.send_message("Kill!")
 		else:
 			# soldier teloporting
 			if self.unit_type == "soldier":
@@ -130,6 +132,8 @@ class unit(object):
 			# stop moving if damaged except for scouts
 			if self.unit_type != "scout":
 				self.master.player_canvas.itemconfig(self.unit_image_on_canvas, tags = "damaged")
+			# send message that was demaged
+			self.master.master.send_message("Hit!")
 
 	def identify(self,num):
 		if self.unit_image_on_canvas == num:
